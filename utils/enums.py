@@ -6,7 +6,7 @@ from api.models import Tallon
 
 
 @extend_schema(responses={
-    200: {"description": "The operation was completed successfully", "example": dict(Tallon.TALON_NUMBER_CHOICES)},
+    200: {"description": "The operation was completed successfully", "example": dict(Tallon.TALLON_NUMBER_CHOICES)},
 })
 @api_view(['GET'])
 @permission_classes([AllowAny])
