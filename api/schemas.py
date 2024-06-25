@@ -61,7 +61,8 @@ get_tallon_table_data_detail_schema = extend_schema(
     summary="Get tallon table 3",
     responses=None,
     parameters=[
-        OpenApiParameter(name='pk', description='Branch ID', required=False, type=OpenApiTypes.INT),
+        OpenApiParameter(name='branch_pk', description='Branch ID', required=False, type=OpenApiTypes.INT),
+        OpenApiParameter(name='organization_pk', description='Organization ID', required=False, type=OpenApiTypes.INT),
         OpenApiParameter(name='from_date', description='YYY-MM-DD', required=False, type=OpenApiTypes.DATE),
         OpenApiParameter(name='to_date', description='YYY-MM-DD', required=False, type=OpenApiTypes.DATE),
     ]

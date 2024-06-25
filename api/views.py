@@ -8,7 +8,7 @@ from api.models import Branch, Organization, Tallon
 from api.schemas import create_branch_schema, update_branch_schema, get_branches_schema, create_organization_schema, \
     update_organization_schema, get_organizations_schema, get_tallon_table_data_all_schema, \
     get_tallon_table_data_detail_schema
-from api.serializers import BranchSerializer, OrganizationSerializer, TallonSerializer
+from api.serializers import BranchSerializer, OrganizationSerializer, TallonGetSerializer
 from utils.pagination import paginate
 from utils.permissions import allowed_only_admin
 from utils.responses import success
@@ -81,7 +81,6 @@ def get_organizations(request):
 
 @get_tallon_table_data_all_schema
 @api_view(['GET'])
-@permission_classes([AllowAny])
 def get_tallon_table_data_all(request):
     from_date = request.query_params.get('from_date')
     to_date = request.query_params.get('to_date')
@@ -135,11 +134,11 @@ def get_tallon_table_data_all(request):
 
 @get_tallon_table_data_detail_schema
 @api_view(['GET'])
-@permission_classes([AllowAny])
 def get_tallon_table_data_detail(request):
     from_date = request.query_params.get('from_date')
     to_date = request.query_params.get('to_date')
-    pk = request.query_params.get('pk')
+    branch_pk = request.query_params.get('branch_pk')
+    organization_pk = request.query_params.get('organization_pk')
     if from_date and to_date:
         try:
             from_date = datetime.strptime(from_date, '%Y-%m-%d').date()
@@ -151,22 +150,36 @@ def get_tallon_table_data_detail(request):
             return Response({'detail': 'from_date must be less than to_date!'}, status=422)
 
         if request.user.is_superuser:
-            if pk:
-                tallons = Tallon.objects.filter(branch=pk, date_received__range=[from_date, to_date])
+            if branch_pk and organization_pk:
+                tallons = Tallon.objects.filter(branch=branch_pk, organization=organization_pk,
+                                                date_received__range=[from_date, to_date]
+                                                ).select_related('branch', 'organization')
+            elif branch_pk:
+                tallons = Tallon.objects.filter(branch=branch_pk, date_received__range=[from_date, to_date]
+                                                ).select_related('branch', 'organization')
             else:
-                tallons = Tallon.objects.filter(date_received__range=[from_date, to_date])
+                tallons = Tallon.objects.filter(date_received__range=[from_date, to_date]
+                                                ).select_related('branch', 'organization')
         else:
-            tallons = Tallon.objects.filter(branch=request.user.branch, date_received__range=[from_date, to_date])
+            tallons = Tallon.objects.filter(branch=request.user.branch, date_received__range=[from_date, to_date]
+                                            ).select_related('branch', 'organization')
     else:
         today = datetime.now().date()
         start_of_month = today.replace(day=1)
         if request.user.is_superuser:
-            if pk:
-                tallons = Tallon.objects.filter(branch=pk, date_received__range=[start_of_month, today])
+            if branch_pk and organization_pk:
+                tallons = Tallon.objects.filter(branch=branch_pk, organization=organization_pk,
+                                                date_received__range=[from_date, to_date]
+                                                ).select_related('branch', 'organization')
+            elif branch_pk:
+                tallons = Tallon.objects.filter(branch=branch_pk, date_received__range=[start_of_month, today]
+                                                ).select_related('branch', 'organization')
             else:
-                tallons = Tallon.objects.filter(date_received__range=[start_of_month, today])
+                tallons = Tallon.objects.filter(date_received__range=[start_of_month, today]
+                                                ).select_related('branch', 'organization')
         else:
-            tallons = Tallon.objects.filter(branch=request.user.branch, date_received__range=[start_of_month, today])
+            tallons = Tallon.objects.filter(branch=request.user.branch, date_received__range=[start_of_month, today]
+                                            ).select_related('branch', 'organization')
 
-    return paginate(tallons, TallonSerializer, request)
+    return paginate(tallons, TallonGetSerializer, request)
 
