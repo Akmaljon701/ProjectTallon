@@ -14,6 +14,12 @@ class OrganizationSerializer(ModelSerializer):
         fields = '__all__'
 
 
+class TallonSerializer(ModelSerializer):
+    class Meta:
+        model = Tallon
+        fields = '__all__'
+
+
 class TallonGetSerializer(ModelSerializer):
     branch = BranchSerializer()
     organization = OrganizationSerializer()

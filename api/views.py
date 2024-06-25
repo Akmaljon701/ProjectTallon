@@ -1,14 +1,13 @@
 from datetime import datetime
 from django.db.models import Sum
-from rest_framework.decorators import api_view, parser_classes, permission_classes
+from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser
-from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from api.models import Branch, Organization, Tallon
 from api.schemas import create_branch_schema, update_branch_schema, get_branches_schema, create_organization_schema, \
     update_organization_schema, get_organizations_schema, get_tallon_table_data_all_schema, \
-    get_tallon_table_data_detail_schema
-from api.serializers import BranchSerializer, OrganizationSerializer, TallonGetSerializer
+    get_tallon_table_data_detail_schema, create_tallon_schema, update_tallon_schema
+from api.serializers import BranchSerializer, OrganizationSerializer, TallonGetSerializer, TallonSerializer
 from utils.pagination import paginate
 from utils.permissions import allowed_only_admin
 from utils.responses import success
@@ -77,6 +76,26 @@ def get_organizations(request):
     organizations = Branch.objects.filter(branch=pk).all().order_by('name')
     serializor = BranchSerializer(organizations, many=True)
     return Response(serializor.data, 200)
+
+
+@create_tallon_schema
+@api_view(['POST'])
+def create_tallon(request):
+    serializer = TallonSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return success
+
+
+@update_tallon_schema
+@api_view(['PUT'])
+def update_tallon(request):
+    pk = request.query_params.get('pk')
+    tallon = Tallon.objects.get(id=pk)
+    serializer = TallonSerializer(tallon, data=request.data, partial=True)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return success
 
 
 @get_tallon_table_data_all_schema
