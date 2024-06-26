@@ -1,11 +1,11 @@
 from django.urls import path
 from api.views import (create_branch, update_branch, get_branches, create_organization, update_organization,
                        get_organizations, get_tallon_table_data_all, get_tallon_table_data_detail, create_tallon,
-                       update_tallon)
+                       update_tallon, download_docx)
 
 urlpatterns = [
-    path('branch/create/', create_branch, name='create_branch'),
-    path('branch/update/', update_branch, name='update_branch'),
+    # path('branch/create/', create_branch, name='create_branch'),
+    # path('branch/update/', update_branch, name='update_branch'),
     path('branch/all/', get_branches, name='get_branches'),
 
     path('organization/create/', create_organization, name='create_organization'),
@@ -16,4 +16,5 @@ urlpatterns = [
     path('tallon/update/', update_tallon, name='update_tallon'),
     path('tallon/table/data/all/', get_tallon_table_data_all, name='get_tallon_table_data_all'),
     path('tallon/table/data/detail/', get_tallon_table_data_detail, name='get_tallon_table_data_detail'),
+    path('tallon/download/docx/', download_docx, name='download_docx'),
 ]

@@ -82,3 +82,13 @@ get_tallon_table_data_detail_schema = extend_schema(
         OpenApiParameter(name='to_date', description='YYY-MM-DD', required=False, type=OpenApiTypes.DATE),
     ]
 )
+
+
+download_docx_schema = extend_schema(
+    summary="Download Tables 1, 2, 3",
+    responses=None,
+    parameters=[
+        OpenApiParameter(name='from_date', description='YYY-MM-DD', required=True, type=OpenApiTypes.DATE),
+        OpenApiParameter(name='to_date', description='YYY-MM-DD', required=True, type=OpenApiTypes.DATE),
+    ]
+)

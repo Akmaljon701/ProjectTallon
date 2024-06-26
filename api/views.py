@@ -1,12 +1,16 @@
 from datetime import datetime
 from django.db.models import Sum
+from django.http import HttpResponse
+from django.utils.dateparse import parse_date
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
+
+from api.export_to_docx import create_docx_with_tables
 from api.models import Branch, Organization, Tallon
 from api.schemas import create_branch_schema, update_branch_schema, get_branches_schema, create_organization_schema, \
     update_organization_schema, get_organizations_schema, get_tallon_table_data_all_schema, \
-    get_tallon_table_data_detail_schema, create_tallon_schema, update_tallon_schema
+    get_tallon_table_data_detail_schema, create_tallon_schema, update_tallon_schema, download_docx_schema
 from api.serializers import BranchSerializer, OrganizationSerializer, TallonGetSerializer, TallonSerializer
 from utils.pagination import paginate
 from utils.permissions import allowed_only_admin
@@ -202,3 +206,28 @@ def get_tallon_table_data_detail(request):
 
     return paginate(tallons, TallonGetSerializer, request)
 
+
+@download_docx_schema
+@api_view(['GET'])
+@allowed_only_admin()
+def download_docx(request):
+    from_date = request.query_params.get('from_date')
+    to_date = request.query_params.get('to_date')
+
+    try:
+        from_date = datetime.strptime(from_date, '%Y-%m-%d').date()
+        to_date = datetime.strptime(to_date, '%Y-%m-%d').date()
+    except ValueError:
+        return Response({'detail': 'from_date and to_date date format is wrong!'}, status=422)
+
+    if from_date > to_date:
+        return Response({'detail': 'from_date must be less than to_date!'}, status=422)
+
+    tallons = Tallon.objects.filter(date_received__range=[from_date, to_date])
+
+    buffer = create_docx_with_tables(tallons, from_date, to_date)
+
+    response = HttpResponse(buffer, content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    response['Content-Disposition'] = f'attachment; filename=tallonlar_{from_date}_to_{to_date}.docx'
+
+    return response
