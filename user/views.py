@@ -11,7 +11,6 @@ from utils.responses import success
 @create_user_schema
 @api_view(['POST'])
 @allowed_only_admin()
-@parser_classes([MultiPartParser])
 def create_user(request):
     serializer = CustomUserSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
