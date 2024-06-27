@@ -1,11 +1,8 @@
 from datetime import datetime
 from django.db.models import Sum
 from django.http import HttpResponse
-from django.utils.dateparse import parse_date
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.parsers import MultiPartParser
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
 from api.export_to_docx import create_docx_with_tables
 from api.models import Branch, Organization, Tallon
 from api.schemas import create_branch_schema, update_branch_schema, get_branches_schema, create_organization_schema, \
@@ -20,7 +17,6 @@ from utils.responses import success
 @create_branch_schema
 @api_view(['POST'])
 @allowed_only_admin()
-@parser_classes([MultiPartParser])
 def create_branch(request):
     serializer = BranchSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -62,7 +58,6 @@ def create_organization(request):
 @update_organization_schema
 @api_view(['PUT'])
 @allowed_only_admin()
-@parser_classes([MultiPartParser])
 def update_organization(request):
     pk = request.query_params.get('pk')
     organization = Organization.objects.get(id=pk)

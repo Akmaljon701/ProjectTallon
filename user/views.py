@@ -1,5 +1,4 @@
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.parsers import MultiPartParser
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from user.models import CustomUser
 from user.schemas import create_user_schema, update_user_schema, get_users_schema, get_current_user_schema
@@ -21,7 +20,6 @@ def create_user(request):
 @update_user_schema
 @api_view(['PUT'])
 @allowed_only_admin()
-@parser_classes([MultiPartParser])
 def update_user(request):
     pk = request.query_params.get('pk')
     user = CustomUser.objects.get(id=pk)
