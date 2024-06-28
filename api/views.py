@@ -72,8 +72,8 @@ def update_organization(request):
 @allowed_only_admin()
 def get_organizations(request):
     pk = request.query_params.get('pk')
-    organizations = Branch.objects.filter(branch=pk).all().order_by('name')
-    serializor = BranchSerializer(organizations, many=True)
+    organizations = Organization.objects.filter(branch=pk).all().order_by('name')
+    serializor = OrganizationSerializer(organizations, many=True)
     return Response(serializor.data, 200)
 
 

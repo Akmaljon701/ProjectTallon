@@ -1,6 +1,6 @@
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from api.serializers import BranchSerializer, TallonSerializer
+from api.serializers import BranchSerializer, TallonSerializer, OrganizationSerializer
 from utils.responses import response_schema
 
 create_branch_schema = extend_schema(
@@ -26,13 +26,13 @@ get_branches_schema = extend_schema(
 
 create_organization_schema = extend_schema(
     summary="Admin create organization",
-    request=BranchSerializer,
+    request=OrganizationSerializer,
     responses=response_schema
 )
 
 update_organization_schema = extend_schema(
     summary="Admin update organization",
-    request=BranchSerializer,
+    request=OrganizationSerializer,
     responses=response_schema,
     parameters=[
         OpenApiParameter(name='pk', description='Organization ID', required=True, type=OpenApiTypes.INT),
@@ -42,7 +42,7 @@ update_organization_schema = extend_schema(
 get_organizations_schema = extend_schema(
     summary="Admin get organizations",
     request=None,
-    responses=BranchSerializer(many=True),
+    responses=OrganizationSerializer(many=True),
     parameters=[
         OpenApiParameter(name='pk', description='Branch ID', required=True, type=OpenApiTypes.INT),
     ]
