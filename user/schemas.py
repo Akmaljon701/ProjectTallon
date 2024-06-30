@@ -1,7 +1,13 @@
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from user.serializers import CustomUserSerializer, CustomUserGetSerializer
+from user.serializers import CustomUserSerializer, CustomUserGetSerializer, CustomTokenObtainPairSerializer
 from utils.responses import response_schema
+
+login_user_schema = extend_schema(
+    summary="Login user",
+    request=CustomTokenObtainPairSerializer,
+    responses=None
+)
 
 create_user_schema = extend_schema(
     summary="Admin create user",

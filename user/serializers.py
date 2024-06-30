@@ -1,8 +1,12 @@
 from django.contrib.auth.hashers import make_password
-from rest_framework.serializers import ModelSerializer
-
+from rest_framework.serializers import ModelSerializer, Serializer, CharField
 from api.serializers import BranchSerializer
 from user.models import CustomUser
+
+
+class CustomTokenObtainPairSerializer(Serializer):
+    username = CharField()
+    password = CharField()
 
 
 class CustomUserSerializer(ModelSerializer):
@@ -28,3 +32,4 @@ class CustomUserGetSerializer(ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('id', 'full_name', 'username', 'branch')
+
