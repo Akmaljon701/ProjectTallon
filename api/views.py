@@ -9,7 +9,7 @@ from api.schemas import create_branch_schema, update_branch_schema, get_branches
     update_organization_schema, get_organizations_schema, get_tallon_table_data_all_schema, \
     get_tallon_table_data_detail_schema, create_tallon_schema, update_tallon_schema, download_docx_schema
 from api.serializers import BranchSerializer, OrganizationSerializer, TallonGetSerializer, TallonSerializer
-from utils.pagination import paginate
+from utils.pagination import pagination
 from utils.permissions import allowed_only_admin
 from utils.responses import success
 
@@ -199,7 +199,8 @@ def get_tallon_table_data_detail(request):
             tallons = Tallon.objects.filter(branch=request.user.branch, date_received__range=[start_of_month, today]
                                             ).select_related('branch', 'organization')
 
-    return paginate(tallons, TallonGetSerializer, request)
+    result = pagination(tallons, TallonGetSerializer, request)
+    return Response(result, 200)
 
 
 @download_docx_schema
