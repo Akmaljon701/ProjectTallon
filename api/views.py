@@ -131,9 +131,9 @@ def get_tallon_table_data_all(request):
 
         table1_data.append({
             'branch': branch.name,
-            '1': tallons_1,
-            '2': tallons_2,
-            '3': tallons_3,
+            'number1': tallons_1,
+            'number2': tallons_2,
+            'number3': tallons_3,
             'jami': jami
         })
 
