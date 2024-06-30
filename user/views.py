@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -18,17 +19,22 @@ def custom_token_obtain_pair(request):
 
     try:
         serializer.is_valid(raise_exception=True)
-        user = CustomUser.objects.get(username=request.data['username'])
 
-        ser = CustomUserGetSerializer(user)
+        username = request.data['username']
+        password = request.data['password']
+        user = authenticate(username=username, password=password)
 
-        refresh = RefreshToken.for_user(user)
+        if user is not None:
+            ser = CustomUserGetSerializer(user)
+            refresh = RefreshToken.for_user(user)
 
-        return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-            'user': ser.data
-        })
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'user': ser.data
+            })
+        else:
+            return Response({'detail': 'Invalid credentials'}, status=401)
     except Exception as e:
         return Response({'detail': str(e)}, status=400)
 
