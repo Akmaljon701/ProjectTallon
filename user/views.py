@@ -33,7 +33,7 @@ def update_user(request):
 @api_view(['GET'])
 @allowed_only_admin()
 def get_users(request):
-    users = CustomUser.objects.all().order_by('full_name')
+    users = CustomUser.objects.select_related('branch').all().order_by('full_name')
     serializor = CustomUserGetSerializer(users, many=True)
     return Response(serializor.data, 200)
 

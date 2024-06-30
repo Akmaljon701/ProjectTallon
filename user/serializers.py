@@ -1,5 +1,7 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework.serializers import ModelSerializer
+
+from api.serializers import BranchSerializer
 from user.models import CustomUser
 
 
@@ -21,6 +23,7 @@ class CustomUserSerializer(ModelSerializer):
 
 
 class CustomUserGetSerializer(ModelSerializer):
+    branch = BranchSerializer()
 
     class Meta:
         model = CustomUser
