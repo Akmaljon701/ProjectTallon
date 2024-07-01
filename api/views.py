@@ -38,7 +38,7 @@ def update_branch(request):
 
 @get_branches_schema
 @api_view(['GET'])
-@allowed_only_admin()
+# @allowed_only_admin()
 def get_branches(request):
     branches = Branch.objects.all().order_by('name')
     serializor = BranchSerializer(branches, many=True)
@@ -69,7 +69,7 @@ def update_organization(request):
 
 @get_organizations_schema
 @api_view(['GET'])
-@allowed_only_admin()
+# @allowed_only_admin()
 def get_organizations(request):
     pk = request.query_params.get('pk')
     organizations = Organization.objects.filter(branch=pk).all().order_by('name')
