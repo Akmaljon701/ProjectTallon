@@ -31,7 +31,7 @@ def custom_token_obtain_pair(request):
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
-                'user': ser.data
+                # 'user': ser.data
             })
         else:
             return Response({'detail': 'Invalid credentials'}, status=401)
