@@ -1,7 +1,11 @@
+import os
+import shutil
 from datetime import datetime
 from django.db.models import Sum
 from django.http import HttpResponse
-from rest_framework.decorators import api_view
+from drf_spectacular.utils import extend_schema
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from api.export_to_docx import create_docx_with_tables
 from api.models import Branch, Organization, Tallon
@@ -12,6 +16,7 @@ from api.serializers import BranchSerializer, OrganizationSerializer, TallonGetS
 from utils.pagination import pagination
 from utils.permissions import allowed_only_admin
 from utils.responses import success
+from django.urls import reverse
 
 
 @create_branch_schema
@@ -223,7 +228,44 @@ def download_docx(request):
 
     buffer = create_docx_with_tables(tallons, from_date, to_date)
 
-    response = HttpResponse(buffer, content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
-    response['Content-Disposition'] = f'attachment; filename=tallonlar_{from_date}_to_{to_date}.docx'
+    user_folder = os.path.join('docx', request.user.username)
+    os.makedirs(user_folder, exist_ok=True)
+
+    temp_filename = f'tallonlar_{from_date}_to_{to_date}.docx'
+    temp_filepath = os.path.join(user_folder, temp_filename)
+
+    with open(temp_filepath, 'wb') as f:
+        f.write(buffer.getvalue())
+    download_url = request.build_absolute_uri(reverse('download_temp_file', kwargs={
+        'filename': temp_filename,
+        'username': request.user.username}))
+
+    response = HttpResponse(buffer,
+                            content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    response['Content-Disposition'] = f'attachment; filename={temp_filename}'
+
+    return Response({'download_url': download_url})
+
+
+@extend_schema(exclude=True)
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def download_temp_file(request, filename, username):
+    user_folder = os.path.join('docx', username)
+    file_path = os.path.join(user_folder, filename)
+
+    try:
+        with open(file_path, 'rb') as f:
+            response = HttpResponse(f.read(),
+                                    content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+            response['Content-Disposition'] = f'attachment; filename={filename}'
+    except FileNotFoundError:
+        return Response({'detail': 'File not found.'}, status=404)
+    finally:
+        if os.path.exists(user_folder):
+            try:
+                shutil.rmtree(user_folder)
+            except OSError:
+                pass
 
     return response
