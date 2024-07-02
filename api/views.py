@@ -249,7 +249,7 @@ def download_docx(request):
 
 @extend_schema(exclude=True)
 @api_view(['GET'])
-@permission_classes([AllowAny])
+# @permission_classes([AllowAny])
 def download_temp_file(request, filename, username):
     user_folder = os.path.join('docx', username)
     file_path = os.path.join(user_folder, filename)
